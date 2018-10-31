@@ -93,6 +93,36 @@ In general the system will need to communicate with several existing systems thr
 \end{itemize}
 All these devices, if ever used, must properly cooperate with our system in order to monitor the health status of the individual. Moreover the system needs to communicate with the Google Maps API in order to track the current location of an inidividual.
 The description above describes what is needed for Data4Help service. In addition their are two other services called AutomatedSOS and Track4Run build on top of Data4Help. For the first service, the system needs to communicate with an ambulance system in Milan in order to send an ambulance on time when an individual (in danger) is required to have one. For the second service no other external service is needed. It will just exploit the features offered by Data4Help.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.33]{classDiagram.png}
+\label{fig:ClassDiagram}
+\caption{Class Diagram of the domain.}
+\end{figure}
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{Activity_D4H.png}
+\label{fig:Activity_D4H}
+\caption{Statechart of the Data4Help service.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{Activity_SOS.png}
+\label{fig:Activity_SOS}
+\caption{Statechart of the AutomatedSOS service.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{Activity_T4R.png}
+\label{fig:Activity_T4R}
+\caption{Statechart of the Track4Run service.}
+\end{figure}
+
 \subsection{Product Functions}
 Considering all of the presented goals of the TrackMe system, the majority of functions of the system can be divided into 3 groups. In the following section, they are listed and more precisely specified, with respect to the already mentioned goals of the system.
 \subsubsection{Data4Help}
@@ -102,7 +132,7 @@ The application gives you 2 types to login. The first way is the one to login as
 This service makes it possible for inidividuals to organize a certain path for a run comptetion. Individuals have also the possibility to join the run or track the location of all runners during the run. For monitoring the athletes who are participating in the run, the service exploits the features offered by Data4Help. 
 
 \subsection{User Characteristics}
-The system aims at satisfying the needs of two different types of users. The first type is the individual, the individual is the one who wants their health and location to be tracked and monitored. A lot of individuals will have several devices that track health data about them, this can be a smartphone, a smartwatch, etc. Therefore the purpose why individuals are using TrackMe, is that they need an application to improve the way their health data is being organized. They want to have one application where the data from all their devices is being displayed. The second type is the third party. A third party can be an organization like a hospital, a sporting company, etc. Their main purpose is that they need data to work with inside their organization. We assume that the individuals
+The system aims at satisfying the needs of two different types of users. The first type is the individual, the individual is the one who wants their health and location to be tracked and monitored. A lot of individuals will have several devices that track health data about them, this can be a smartphone, a smartwatch, etc. Therefore the purpose why individuals are using TrackMe, is that they need an application to improve the way their health data is being organized. They want to have one application where the data from all their devices is being displayed. The second type is the third party. A third party can be an organization like a hospital, a sporting company, etc. Their main purpose is that they need data to work with inside their organization. We assume that the individuals are people who are in possession of at least a smartphone or smartwatch. Therefore we set the age of our individuals, who will use the application, between 10 and 80 years old.
 
 \subsection{Assumptions, dependencies and constraints}
 [D1] The username and email must be unique. \newline
@@ -140,10 +170,13 @@ The system aims at satisfying the needs of two different types of users. The fir
 \subsection{External Interface Requirements}
 
 \subsubsection{User Interfaces}
+
+
 The following Mockups represent a basic idea of how the systems user interface will look like on the first release (mobile application):
 \begin{itemize}
     \item Figure 1 and 2 show the login screen and registration screen for an individual and a third party.
     \item Figure 3 shows the different windows you have in the home screen. The first screen is today's activities, activities like for example walked and running distance are showed for a specific day. The second screen is health data where we can find detailed information about an individual such as hearthbeat, blood pressure, etc. In figure 4 (left) we find the third screen, the one who makes it possible to make/enroll/spectacte a run. These screens are only available for indivduals. The right screen in figure 4 is ment to be for third parties. They can enter a fiscal code of an individual they want to track and enter a data request as well. 
+    \item The AutomatedSOS doesn't need an extra user interface. In the background the system monitors  the health status of an individual through Data4Help and when the individual is in danger, a parameter is lower than the threshold of that certain parameter, a popup occurs on the home screen saying the system noticed an unusual event and sends an ambulance to the specific individual.
 \end{itemize}
 
 \newpage
@@ -203,29 +236,249 @@ Given the wide range of features the system offers, it will need to have several
 Communication interfaces ensure the communication between the system and the other software interfaces (third party service providers). The communication between the system and those service providers is crucial because the system depends on those services to perform its functions. Given this, the systems communication interface must be either WiFi or Mobile Data (2G, 3G or 4G), and the service providers communication interface can be of any type, as long as it ensures that they are connected to the internet. The protocol used shall be HTTPS, in order to keep the communications secure.
 
 \subsection{Functional Requirements}
-Data4Help: \newline
-\newline 
-[G1] Allow a visitor to become a registered individual or thrid party after providing email, username, password and agreeing on sharing their data. \newline
+\subsubsection{Data4Help}
+[G1] Allow a visitor to become a registered individual or third party after providing email, username/organization, password, general info (if case of an individual). \newline
+\begin{itemize}
+    \item{[R1]} The system shall allow the visitor to begin the registration process when he accesses the system.
+    \item{[R2]} The system shall ask the visitor for the required information and credentials during the registration process.
+    \item{[R3]} The system shall register the visitor as a individual or third party when the registration process ends, if all the data inserted by the visitor is valid.
+    \item{[R4]} The system shall not allow a visitor to access more than the registration functionality.
+\end{itemize}
 [G2] Allow a user to monitor it's health status.\newline 
+\begin{itemize}
+    \item {[R5]} The system can recive data from external devices. 
+    \item {[R6]} The system can store received data. 
+    \item {[R7]} The system allows users to access its own data whenever it wants.
+\end{itemize}
 [G3] Allow third parties to request data from a specific individual after authorization.\newline 
+\begin{itemize}
+    \item {[R8]} The system shall allow registered users to ask individaul permission to access data.
+    \item {[R9]} The system shall allow individual to accept or refuse the request. 
+    \item {[R10]} A third party can access data only from individuals that accept their request.
+    \item {[R11]} When a third party gets the authorization to access data from an individual it can always access those data. 
+\end{itemize}
 [G4] Allow third parties to subscribe to new data and receive them as soon as they are produced.\newline 
+% * <lollocasalini@gmail.com> 12:29:02 22 Oct 2018 UTC+0200:
+% I can't find a good requirement for that goal :)
 [G5] Allow third parties to access anonymized data of a group of individuals.\newline 
+\begin{itemize}
+    \item {[R12]} A third party can ask the system to access data of a group of individuals, by entering their fiscal code. 
+    \item {[R13]} The system allows a third party to access data of a group only if the number of individuals is greater than 1000. 
+\end{itemize}
 [G6] Allow individuals to choose what data is being send to the application's DB.\newline 
-\newline
-AutomatedSOS: \newline
-\newline
+\begin{itemize}
+    \item {[R14]} An individual can choose what data he wants to send to the application.
+    \item {[R15]} At any time an individual can change the data they would like to send to the application.
+    \item {[R16]} When an individual decides to stop sending certain data to application, a third party cannot access it anymore.  
+\end{itemize}
+\subsubsection{AutomatedSOS}
 [G7] Allow third parties to acquire data from Data4Help.\newline 
+\begin{itemize} 
+    \item {[R17]} AutomatedSOS uses the same DB as Data4Help.
+\end{itemize}
 [G8] Allow individuals to define a certain threshold for a certain parameter.\newline 
-\newline
-Track4Run: \newline
-\newline
-[G9] Allow an individual to organize a track for a run.\newline 
-[G10] Allow an individual to enroll for a run.\newline 
-[G11] Allow an individual to see the live position of all runners during the run.\newline 
-
+\begin{itemize}
+    \item {[R18]} At the very beginnnig thresholds are default fixed.
+    \item {[R19]} An Individual can change his thresholds at any time depending on its health status.  
+\end{itemize}
+[G9] Call an ambulance when parameters drop below a certain threshold.\newline
+\begin{itemize}
+    \item {[R20]} The system monitors health status of an individual every 30 seconds. 
+    \item {[R21]} The system is connected with an ambulance dispatch.
+    \item {[R22]} When health parameters of an individual drops below the threshold the system calls an ambulance.
+\end{itemize}
+\subsubsection{Track4Run}
+[G10] Allow an individual to organize a track for a run.\newline
+\begin{itemize}
+    \item {[R23]} Allow an individual to define a track through a map. 
+    \item {[R24]} The system checks if the track is feasible.
+    \item {[R25]} The system calculates the length of the track. 
+\end{itemize}
+[G11] Allow an individual to enroll for a run.\newline 
+\begin{itemize}
+    \item {[R26]} The system shows all ongoing runs that are organized in a certain period and place. 
+    \item {[R27]} Allow individuals to decide to enroll for a run as runners or spectators.
+\end{itemize}
+[G12] Allow an individual to see the live position of all runners during the run.\newline 
+\begin{itemize}
+    \item {[R28]}The system shows in real-time the position on the map of all participating runners.
+\end{itemize}
 \subsubsection{Use Case Diagrams}
 
+\begin{figure}[H]
+\includegraphics[scale=0.25]{VisitorUseCase.png}
+\centering
+\label{fig:VisitorUseCase}
+\caption{Visitor Use Case.}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.2]{UseCase-Data4Help.png}
+\centering
+\label{fig:UseCase-Data4Help}
+\caption{User use case for the Data4Help service.}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.2]{UseCase-AutomatedSOS.png}
+\centering
+\label{fig:UseCase-AutomatedSOS}
+\caption{User use case for the AutomatedSOS service.}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.25]{UseCase-Track4Run.png}
+\centering
+\label{fig:UseCase-Track4Run}
+\caption{User use case for the Track4Run service.}
+\end{figure}
+
 \subsubsection{Use Case Description}
+\paragraph{Visitor Registration}
+
+\begin{center}
+    \begin{tabular} { |p{0.25\textwidth}|p{0.8\textwidth}| }
+        \hline
+        \textbf{Actors} & Visitor \\ 
+        \hline
+        \textbf{Goals} & {[G1]} \\ 
+        \hline  
+        \textbf{Preconditions} & There are no preconditions. \\ 
+        \hline
+        \textbf{Events Flow} & \begin{enumerate}[topsep=0pt]
+                            \setlength{\itemsep}{0.5pt}
+                            \item The visitor opens the TrackMe application.
+                            \item The visitor clicks on the "Sign up Individual" button in case of an inidividual and on the "Sign up Third Party" in case of a third party button to start the registration process.
+                            \item The system provides the Visitor a form with the required data fields which need to be filled in order for him to be registered as a individual/Third party.
+                            \item The visitor fills the fields with his data. 
+                            \item The visitor clicks on the "Register Button", submitting the data to the system.
+                            \item The system verifies if all the data are valid.
+                            \item The system saves the data in an online DB.
+                            \item The system notifies the Visitor that his registration as a individual/Third party has been completed with success, and redirects him to the right Home Screen (depends on which type of user is registering).
+                            \end{enumerate} \\
+        \hline
+        \textbf{Postconditions} & The visitor ends the registration process successfully and from now on is a user of the system, being able to access all of its functionality. \\
+        \hline
+        \textbf{Exceptions} & \begin{enumerate}[topsep=0pt]
+                            \setlength{\itemsep}{0.5pt}
+                            \item The visitor is already an existing individual or third party. 
+                            \item The visitor doesn't fill all the mandatory fields or fills them with invalid data.
+                            \item The visitor chooses a username/organization or email which is already associated with another individual or third party.
+                            \end{enumerate} 
+                            All exceptions are handled notifying the visitor about the issue and going back to the applications initial screen.\\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\newpage
+\paragraph{Third Part request to access data}
+\begin{center}
+    \begin{tabular} { |p{0.25\textwidth}|p{0.8\textwidth}| }
+         \hline
+         \textbf{Actors} & Third Part \\ 
+         \hline
+         \textbf{Goals} & {[G3]} \\ 
+         \hline  
+         \textbf{Preconditions} & The third part has to be already logged in. \\ 
+         \hline
+         \textbf{Events Flow} & \begin{enumerate}[topsep=0pt]
+             \setlength{\itemsep}{0.5pt}
+             \item The third part opens TrackMe application.
+             \item The third part clicks on Enter Fiscal code button.
+             \item The third part insert fiscal code of Individual that wants to monitors.
+             \item The third part clicks on Enter your Request button. 
+             \item The third part specifies its request.
+             \item The system sends request to Individual specified by fiscal code.
+             \item After authorization, the system downloads data from its online database and displays them on third part screen.
+             \end{enumerate} \\ 
+        \hline
+        \textbf{Postconditions} & The third part can see all the data that he requires from the Individual that has specyfied before. \\
+        \hline 
+        \textbf{Exceptions} & \begin{enumerate}[topsep=0pt] 
+              \setlength{\itemsep}{0.5pt}
+              \item The fiscal code is wrong and does not exixt any Individual associated with that fiscal code. 
+              \item The Individual does not accept the request of third part. 
+              \item The request is different from the ones that the system can manage. 
+              \end{enumerate}
+               All exceptions are handled notifying the visitor about the issue and going back to the applications initial screen.\\ 
+        \hline
+    \end{tabular}
+\end{center}
+  
+  
+\newpage              
+\paragraph{ The system call an ambulance} 
+\begin{center}
+    \begin{tabular} { |p{0.25\textwidth}|p{0.8\textwidth}| }
+         \hline
+         \textbf{Actors} & The system \\ 
+         \hline
+         \textbf{Goals} & {[G9]} \\ 
+         \hline  
+         \textbf{Preconditions} & The Individual must be subscribed, the location of the Individual must be available and the system must be able to call an ambulance. \\ 
+         \hline
+         \textbf{Events Flow} & \begin{enumerate}[topsep=0pt]
+             \setlength{\itemsep}{0.5pt}
+             \item The system accesses to the online DB.
+             \item The system automatically checks health paramaters of the Individual 
+             \item The system realizes that some health parameters are beyond a certain threshold. 
+             \item The system checks the position of the Individual. 
+             \item The system calls the ambulance dispatcher in order to have an ambulance. 
+             \item The systems sends health status and location of the Individual to ambulance dispatcher. 
+             \end{enumerate} \\ 
+        \hline 
+        \textbf{Postconditions} & The SSN is informed that there is a people in danger, knows its location and its health status. \\ 
+        \hline
+         \textbf{Exceptions} & \begin{enumerate}[topsep=0pt] 
+              \setlength{\itemsep}{0.5pt}
+              \item Position of Individual is not available. 
+              \item Data from Individual are not considered to be reliable. 
+              \end{enumerate}
+            In order to manage the first exeption the system must to try again to relocate Individual while it is calling the ambulance dispatcher. In the second case it could do another check and then call the ambulance dispatcher. \\
+             \hline
+    \end{tabular}
+\end{center}
+
+\newpage
+\paragraph{An Individual organizes a run} 
+\begin{center}
+    \begin{tabular} { |p{0.25\textwidth}|p{0.8\textwidth}| }
+         \hline
+         \textbf{Actors} & Individual \\ 
+         \hline
+         \textbf{Goals} & {[G10]} \\ 
+         \hline  
+         \textbf{Preconditions} & Individual must be subscribed to the system and the maps must be available \\ 
+         \hline
+         \textbf{Events Flow} & \begin{enumerate}[topsep=0pt]
+             \setlength{\itemsep}{0.5pt}
+             \item An Individual opens Track4Run application. 
+             \item Individual clicks on Organize Run button. 
+             \item The system opens map.
+             \item Individual inserts the desiderd track. 
+             \item Individual chooses start time.
+             \item The system checks if the track is available at desidered time. 
+             \item The system notifies the organization of the run to Individual. 
+             \item The system sends notification to all Individuals subscribed to Track4Run application in the zone of the run. 
+             \end{enumerate} \\ 
+        \hline
+        \textbf{Postconditions} & The run is organized in the choosen track and time, every Individual can enroll the run if they want to partecipate or spectacte. \\ 
+        \hline 
+         \textbf{Exceptions} & \begin{enumerate}[topsep=0pt] 
+              \setlength{\itemsep}{0.5pt}
+              \item Track is not available at desired time. 
+              \end{enumerate} 
+            The exception is handled notifying about the issue and going back to the application initial state. \\ 
+            \hline
+    \end{tabular}
+\end{center}
+            
+        
+                  
+        
+
+        
+         
 
 \subsubsection{BPMN Diagrams}
 
@@ -233,20 +486,26 @@ Track4Run: \newline
 
 
 \subsection{Performance Requirements}
+With regard to Data4Help it is not necessary that a thrid part could access to data in real time so we can accept some minutes of delay to make data accessible. The most important thing is that the system can store all interesting data from an Individual, using 1 Gb of memory each. Regarding AutomatedSOS, performances are very important. We should implement a system wich checks every 30 seconds health parameters of Individual and can call an ambulance in 5 seconds if those are beyond a certain threshold. Track4Run, instead, should be able to gives position of runners almost in real time, but we can accept a five second delay between the real position of the runner and the one showed by the map. This would be the most demanding costraint to implement because the system should be able to manage the position of several runners (up to 1000) in real time. 
+% * <lollocasalini@gmail.com> 18:42:27 22 Oct 2018 UTC+0200:
+% Please check if i wrote some bullshits
 
 
 \subsection{Design Constraints}
 \subsubsection{Standard Compliance}
+The system, in order to protect the privacy of Users, complies the new GDPR (General Data Protection Regulation). The data stored in the app will be protected and shared only with the permission of the Individual that owns this data. To access data from a group of persons will be possible only if it consists of 1000 Individual at least. 
 
 \subsubsection{Hardware Limitations}
+The users will need a mobile phone with GPS and it has to be connected with Wi-fi or Mobile Data on when using the app. Mobile phone also needs Bloothooth in order to recive data from external devices as smartwatches or heart rate monitors.   
 
 \subsection{Software System Attributes}
 \subsubsection{Reliability}
+In order to keep maintenance cost low, the system should offer a high level of reliability and must be available 24/7.
 
 \subsubsection{Availability}
-
+A long downtime of the system could be fatal to someone that is subscribed to AutomatedSOS. In order to avoid that the system is required to have an availability of 99.999%. System of redundant server may be considered to achieve this goal.
 \subsubsection{Security}
-
+Health data of the Individuals are critical and must be protected with the highest attemption. Those data will be stored in internal DB of the system and can be shared only after explicit authorization of the owner. No one can access data of an Individual without this authorization. Data from groups of Individuals can be accessible only for larges groups in order to ensure anonymity. Security of data is the attribute of the software that requires more attemption. 
 \subsubsection{Maintainability}
 
 \subsubsection{Portability}
@@ -262,7 +521,7 @@ Track4Run: \newline
  \hline
  \textbf{DATE} & \textbf{TASK} & \textbf{HOURS} \\ 
   \hline
-  15/10/2018 & Requirements Analysis, Purpose, Scope & 2 \\ 
+  0/10/2018 & Requirements Analysis, Purpose, Scope & 2 \\ 
   \hline
   16/10/2018 & Definitions, Acronyms, Abbreviations, Scope, Document Structure & 2 \\ 
   \hline
@@ -270,7 +529,13 @@ Track4Run: \newline
   \hline
   19/10/2018 & User Interfaces (Mockups), Hardware Interfaces & 3,5 \\ 
   \hline
-  21/10/2018 & User Interfaces (Mockups), Product Functions, User Characteristics, Software Interfaces, Communication Interfaces, Domain Assumptions & 5 \\ 
+  21/10/2018 & User Interfaces (Mockups), Product Functions, User Characteristics, Software Interfaces, Communication Interfaces, Domain Assumptions, Functional Requirements & 5 \\ 
+  \hline
+  22/10/2018 & Functional Requirements, Class Diagram, Use Case Diagrams, Use Case Description & 7 \\ 
+  \hline
+  24/10/2018 & Team discussion and start Alloy & 1 \\ 
+  \hline
+  28/10/2018 & State Diagrams, Alloy & 3 \\ 
   \hline
   \textbf{TOTAL} & \multicolumn{2}{c|}{} \\ 
   \hline
@@ -289,6 +554,10 @@ Track4Run: \newline
   \hline
   20/10/2018 & Hardware Limitations, User Characteristics,Product Function & 2 \\ 
   \hline
+  23/10/2018 & Product Function ,State Diagrams & 2 \\ 
+  \hline
+  24/10/2018 & Team discussion and start Alloy & 1 \\ 
+  \hline
   \textbf{TOTAL} & \multicolumn{2}{c|}{} \\ 
   \hline
 \end{tabular}
@@ -302,6 +571,20 @@ Track4Run: \newline
  \textbf{DATE} & \textbf{TASK} & \textbf{HOURS} \\ 
   \hline
   18/10/2018 & Goals, Domain Assumptions, State Diagrams & 3,5\\ 
+  \hline 
+  20/10/2018 & State Diagrams, Activity Diagrams & 3 \\
+  \hline
+  22/10/2018 & Functional Requirement, Performance Costraints & 3.5 \\
+  \hline
+  23/10/18 & Use Case Descriptions, Software System Attributes & 2.5 \\
+  \hline
+  24/10/2018 & Team discussion and start Alloy & 2 \\ 
+  \hline
+  25/10/2018 & Alloy & 2.5 \\ 
+  \hline
+  29/10/2018 & Alloy & 2 \\ 
+  \hline 
+  30/10/2018 & Alloy & 2.5\\
   \hline
   \textbf{TOTAL} & \multicolumn{2}{c|}{} \\ 
   \hline
@@ -314,4 +597,3 @@ Track4Run: \newline
 
 
 \end{document}
-
